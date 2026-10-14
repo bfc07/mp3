@@ -103,13 +103,13 @@ module.exports = function () {
             utils.send(res, 200, 'User updated', user);
         })
         .delete(async function (req, res) {
-            var user = await utils.inTransaction(async function () {
+            await utils.inTransaction(async function () {
                 var existing = await findUserOr404(req.params.id);
                 await Task.updateMany({ assignedUser: String(existing._id) }, { $set: UNASSIGNED });
                 await existing.deleteOne();
-                return existing;
             });
-            utils.send(res, 200, 'User deleted', user);
+            // 204 No Content: nothing left to send back
+            res.status(204).end();
         });
 
     return router;

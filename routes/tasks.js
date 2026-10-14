@@ -90,13 +90,13 @@ module.exports = function () {
             utils.send(res, 200, 'Task updated', task);
         })
         .delete(async function (req, res) {
-            var task = await utils.inTransaction(async function () {
+            await utils.inTransaction(async function () {
                 var existing = await findTaskOr404(req.params.id);
                 await User.updateMany({ pendingTasks: String(existing._id) }, { $pull: { pendingTasks: String(existing._id) } });
                 await existing.deleteOne();
-                return existing;
             });
-            utils.send(res, 200, 'Task deleted', task);
+            // 204 No Content: nothing left to send back
+            res.status(204).end();
         });
 
     return router;
